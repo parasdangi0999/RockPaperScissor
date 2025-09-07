@@ -1,0 +1,148 @@
+#pragma version 10
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 2
+    bytecblock "p1" "p2"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/hello_world/contract.algo.ts:5
+    // p1Choice = GlobalState<uint64>({ key: "p1", initialValue: 0 })
+    bytec_0 // "p1"
+    intc_1 // 0
+    app_global_put
+    // smart_contracts/hello_world/contract.algo.ts:6
+    // p2Choice = GlobalState<uint64>({ key: "p2", initialValue: 0 })
+    bytec_1 // "p2"
+    intc_1 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class RockPaperScissors extends Contract {
+    txn NumAppArgs
+    bz main_bare_routing@8
+    pushbytes 0x91cb3c42 // method "setChoices(uint64,uint64)string"
+    txna ApplicationArgs 0
+    match main_setChoices_route@5
+
+main_after_if_else@12:
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class RockPaperScissors extends Contract {
+    intc_1 // 0
+    return
+
+main_setChoices_route@5:
+    // smart_contracts/hello_world/contract.algo.ts:8
+    // setChoices(p1: uint64, p2: uint64): string {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class RockPaperScissors extends Contract {
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    // smart_contracts/hello_world/contract.algo.ts:8
+    // setChoices(p1: uint64, p2: uint64): string {
+    callsub setChoices
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@8:
+    // smart_contracts/hello_world/contract.algo.ts:3
+    // export class RockPaperScissors extends Contract {
+    txn OnCompletion
+    bnz main_after_if_else@12
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// smart_contracts/hello_world/contract.algo.ts::RockPaperScissors.setChoices(p1: uint64, p2: uint64) -> bytes:
+setChoices:
+    // smart_contracts/hello_world/contract.algo.ts:8
+    // setChoices(p1: uint64, p2: uint64): string {
+    proto 2 1
+    // smart_contracts/hello_world/contract.algo.ts:5
+    // p1Choice = GlobalState<uint64>({ key: "p1", initialValue: 0 })
+    bytec_0 // "p1"
+    // smart_contracts/hello_world/contract.algo.ts:9
+    // this.p1Choice.value = p1
+    frame_dig -2
+    app_global_put
+    // smart_contracts/hello_world/contract.algo.ts:6
+    // p2Choice = GlobalState<uint64>({ key: "p2", initialValue: 0 })
+    bytec_1 // "p2"
+    // smart_contracts/hello_world/contract.algo.ts:10
+    // this.p2Choice.value = p2
+    frame_dig -1
+    app_global_put
+    // smart_contracts/hello_world/contract.algo.ts:12
+    // if (p1 === p2) return "draw"
+    frame_dig -2
+    frame_dig -1
+    ==
+    bz setChoices_after_if_else@2
+    pushbytes "draw"
+    retsub
+
+setChoices_after_if_else@2:
+    // smart_contracts/hello_world/contract.algo.ts:13
+    // if ((p1 === 0 && p2 === 2) || (p1 === 1 && p2 === 0) || (p1 === 2 && p2 === 1)) return "p1 wins"
+    frame_dig -2
+    bnz setChoices_or_contd@4
+    frame_dig -1
+    intc_2 // 2
+    ==
+    bnz setChoices_if_body@8
+
+setChoices_or_contd@4:
+    // smart_contracts/hello_world/contract.algo.ts:13
+    // if ((p1 === 0 && p2 === 2) || (p1 === 1 && p2 === 0) || (p1 === 2 && p2 === 1)) return "p1 wins"
+    frame_dig -2
+    intc_0 // 1
+    ==
+    bz setChoices_or_contd@6
+    frame_dig -1
+    bz setChoices_if_body@8
+
+setChoices_or_contd@6:
+    // smart_contracts/hello_world/contract.algo.ts:13
+    // if ((p1 === 0 && p2 === 2) || (p1 === 1 && p2 === 0) || (p1 === 2 && p2 === 1)) return "p1 wins"
+    frame_dig -2
+    intc_2 // 2
+    ==
+    bz setChoices_after_if_else@9
+    frame_dig -1
+    intc_0 // 1
+    ==
+    bz setChoices_after_if_else@9
+
+setChoices_if_body@8:
+    // smart_contracts/hello_world/contract.algo.ts:13
+    // if ((p1 === 0 && p2 === 2) || (p1 === 1 && p2 === 0) || (p1 === 2 && p2 === 1)) return "p1 wins"
+    pushbytes "p1 wins"
+    retsub
+
+setChoices_after_if_else@9:
+    // smart_contracts/hello_world/contract.algo.ts:14
+    // return "p2 wins"
+    pushbytes "p2 wins"
+    retsub
